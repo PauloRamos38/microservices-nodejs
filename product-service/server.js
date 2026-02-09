@@ -1,7 +1,12 @@
 const express = require('express');
+const helmet = require('helmet');
+require('dotenv').config();
+
 const app = express();
 
-app.use(express.json());
+app.disable('x-powered-by');
+app.use(helmet());
+app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '100kb' }));
 
 // Banco de dados simulado em memória
 let products = [

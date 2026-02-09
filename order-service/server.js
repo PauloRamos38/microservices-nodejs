@@ -1,12 +1,17 @@
 
 const express = require('express');
 const axios = require('axios');
+const helmet = require('helmet');
+require('dotenv').config();
 
 const app = express();
-app.use(express.json());
+app.disable('x-powered-by');
+app.use(helmet());
+app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '100kb' }));
 
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || 'http://localhost:3001';
 const PRODUCT_SERVICE_URL = process.env.PRODUCT_SERVICE_URL || 'http://localhost:3002';
+const HTTP_TIMEOUT_MS = Number(process.env.HTTP_TIMEOUT_MS || 5000);
 
 // Banco de dados simulado em memoria
 let orders = [];
@@ -40,10 +45,22 @@ app.post('/orders', async (req, res) => {
 	}
 
 	try {
-		const userResponse = await axios.get(`${USER_SERVICE_URL}/users/${userId}`);
+		const userResponse = await axios.get(`${USER_SERVICE_URL}/users/${userId}`, {
+			timeout: HTTP_TIMEOUT_MS,
+			validateStatus: () => true
+		});
+		if (userResponse.status !== 200) {
+			return res.status(404).json({ error: 'Usuario nao encontrado' });
+		}
 		const user = userResponse.data;
 
-		const productResponse = await axios.get(`${PRODUCT_SERVICE_URL}/products/${productId}`);
+		const productResponse = await axios.get(`${PRODUCT_SERVICE_URL}/products/${productId}`, {
+			timeout: HTTP_TIMEOUT_MS,
+			validateStatus: () => true
+		});
+		if (productResponse.status !== 200) {
+			return res.status(404).json({ error: 'Produto nao encontrado' });
+		}
 		const product = productResponse.data;
 
 		if (product.stock < quantity) {
