@@ -1,0 +1,17 @@
+{
+  "name": "microservices-root",
+  "version": "1.0.0",
+  "description": "Gerenciador dos microserviços",
+  "scripts": {
+    "install-all": "npm install && cd api-gateway && npm install && cd ../user-service && npm install && cd ../product-service && npm install && cd ../order-service && npm install",
+    "start": "concurrently -n \"GATEWAY,USER,PRODUCT,ORDER\" -c \"blue,green,magenta,yellow\" \"npm run start:gateway\" \"npm run start:user\" \"npm run start:product\" \"npm run start:order\"",
+    "start:gateway": "cd api-gateway && npm start",
+    "start:user": "cd user-service && npm start",
+    "start:product": "cd product-service && npm start",
+    "start:order": "cd order-service && npm start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  },
+  "dependencies": {}
+}

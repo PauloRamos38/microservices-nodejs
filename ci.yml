@@ -1,0 +1,30 @@
+name: CI Microservices
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Lista dos serviços baseada no seu README
+        service: [api-gateway, user-service, product-service, order-service]
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js 18
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install Dependencies - ${{ matrix.service }}
+      run: |
+        cd ${{ matrix.service }}
+        npm install
+        # Se tiver testes configurados no futuro, descomente a linha abaixo:
+        # npm test
